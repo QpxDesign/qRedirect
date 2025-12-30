@@ -39,7 +39,7 @@ async fn redirect(Path(code): Path<String>) -> Html<String> {
         );
     } else {
         return Html(format!(
-            "<meta http-equiv=\"refresh\" content=\"0; url=https://{} \" />",
+            "<meta http-equiv=\"refresh\" content=\"0; url={} \" />",
             resp.unwrap()
         ));
     }
