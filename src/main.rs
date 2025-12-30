@@ -14,6 +14,14 @@ pub fn file_to_string(path: &str) -> String {
 
 #[tokio::main]
 async fn main() {
+    let app = Router::new().route("/{code}", get(move |code| redirect(code)));
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:3981")
+        .await
+        .unwrap();
+    axum::serve(listener, app).await.unwrap();
+}
+
+async fn redirect(Path(code): Path<String>) -> Html<String> {
     let key_contents: String = file_to_string("./assets/key.txt");
     let mut key: HashMap<String, String> = HashMap::new();
     for line in key_contents.split("\n") {
@@ -23,14 +31,6 @@ async fn main() {
             key.insert(parts[0].to_string(), parts[1].to_string());
         }
     }
-    let app = Router::new().route("/{code}", get(move |code| redirect(code, key)));
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:3981")
-        .await
-        .unwrap();
-    axum::serve(listener, app).await.unwrap();
-}
-
-async fn redirect(Path(code): Path<String>, key: HashMap<String, String>) -> Html<String> {
     let resp = key.get(&code);
     if resp.is_none() {
         return Html(
